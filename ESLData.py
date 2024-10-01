@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
+from datetime import datetime
 
 # Specify the directory
 directory = 'ESL-Files'
@@ -7,22 +8,36 @@ directory = 'ESL-Files'
 # Get list of all files in the directory
 all_files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 
+# Dictionary to store the latest data for each time period in YEAR-MONTH format
+time_period_data = {}
+
+# Iterate through all files
 for i in all_files:
-    print(i)
+    # Load the XML file from the disk
+    tree = ET.parse(os.path.join(directory, i))
+    root = tree.getroot()
 
+    # Extract TimePeriod and Values
+    for time_period in root.findall('.//TimePeriod'):
+        time_period_end = time_period.attrib.get('end')
 
-"""# Load the XML file from the disk
-tree = ET.parse('ESL-Files/EdmRegisterWertExport_20190131_eslevu_20190322160349.xml')  # Replace 'your_file.xml' with the actual file path
-root = tree.getroot()
+        # Convert the TimePeriod end to YEAR-MONTH format
+        time_period_ym = datetime.strptime(time_period_end, '%Y-%m-%dT%H:%M:%S').strftime('%Y-%m')
 
-# Extract the 'end' attribute from the TimePeriod element
-time_period = root.find(".//TimePeriod")
-if time_period is not None:
-    time_period_end = time_period.attrib.get('end')
-    print(f"TimePeriod End: {time_period_end}")
+        # Initialize the time period data if not present
+        if time_period_ym not in time_period_data:
+            time_period_data[time_period_ym] = []
 
-# Extract Values from ValueRow elements
-for value_row in root.findall(".//ValueRow"):
-    value = value_row.attrib.get('value')  # Extract only the 'value' attribute
-    if value:
-        print(f"Value: {value}")"""
+        # Extract only the value from the ValueRow elements
+        for value_row in time_period.findall('.//ValueRow'):
+            value = value_row.attrib.get('value')
+
+            # Store the value in the dictionary
+            if value:
+                time_period_data[time_period_ym].append(value)
+
+# After processing all files, print the stored data (ensuring no redundancy, using YEAR-MONTH)
+for period_ym, values in time_period_data.items():
+    print(f'TimePeriod: {period_ym}')
+    for value in values:
+        print(f'\tValue: {value}')
