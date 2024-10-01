@@ -14,15 +14,14 @@ def process_esl_data():
 
 # Streamlit app
 def main():
-    st.title('ESL Energy Data Visualization')
+    st.title('Voltaflow Energie Visualizer')
 
     # Parse the ESL data
     df = process_esl_data()
 
     if not df.empty:
         # User selection for time granularity
-        st.subheader('Select Time Granularity')
-        time_granularity = st.selectbox('Choose a time granularity:', ('Monthly', 'Yearly'))
+        time_granularity = st.selectbox('Choose a time granularity:', ('Monthly', 'Yearly', 'Daily'))
 
         # Resample data based on the selected granularity
         if time_granularity == 'Yearly':
@@ -30,7 +29,7 @@ def main():
             df_resampled = df.resample('Y', on='TimePeriod').sum().reset_index()
             x_axis_format = "%Y"  # Show only the year
             dtick = "M12"  # Ticks for every year
-        else:
+        if time_granularity == 'Monthly':
             # Monthly data (no resampling needed)
             df_resampled = df
             x_axis_format = "%b %Y"  # Show month and year
