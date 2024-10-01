@@ -2,7 +2,6 @@ import xml.etree.ElementTree as ET
 import os
 from datetime import datetime
 
-# dir_input = input('Relative Path > ')
 
 def esl_data(directory='ESL-Files'):
     # Dictionary to store the latest data for each time period in YEAR-MONTH format
@@ -67,8 +66,11 @@ def esl_data(directory='ESL-Files'):
                     'Einspeisung': einspeisung
                 }
 
-    # Convert the dictionary to a list
-    return list(time_period_data.values())
+    # Convert the dictionary to a list and sort it by 'TimePeriod'
+    sorted_data = sorted(time_period_data.values(), key=lambda x: datetime.strptime(x['TimePeriod'], '%Y-%m'))
+
+    return sorted_data
+
 
 # Example usage
 data = esl_data()
