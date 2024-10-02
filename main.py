@@ -29,15 +29,15 @@ def main():
 
     if not df_cumulative.empty and not df_monthly.empty:
         # User selection for time granularity
-        time_granularity = st.selectbox('Choose a time granularity:', ('Monthly', 'Yearly'))
+        time_granularity = st.selectbox('Wählen sie eine Zeitspanne aus', ('Monatlich', 'Jährlich'))
 
         # Visualization for cumulative data
         st.subheader('Cumulative Energy Data (Bezug and Einspeisung)')
         st.dataframe(df_cumulative)
 
         fig_cumulative = px.line(df_cumulative, x='TimePeriod', y=['Bezug', 'Einspeisung'],
-                                 labels={'value': 'Energy (kWh)', 'TimePeriod': 'Date'},
-                                 title=f'Cumulative Energy Consumption and Feed-in Over Time')
+                                 labels={'value': 'Energie (kWh)', 'TimePeriod': 'Zeitspanne'},
+                                 title=f'Kumulativer Energiebezug und Einspeisung')
 
         # Customize x-axis for cumulative data
         fig_cumulative.update_layout(
@@ -61,14 +61,14 @@ def main():
         st.plotly_chart(fig_cumulative, use_container_width=True)
 
         # Visualization for monthly data using a bar chart (beam diagram)
-        st.subheader('Monthly Energy Data (Bezug and Einspeisung)')
+        st.subheader('Monatliche Energiestatistik (Bezug and Einspeisung)')
         st.dataframe(df_monthly)
 
         # Bar chart for monthly energy consumption
         fig_monthly = px.bar(df_monthly, x='TimePeriod', y=['Bezug', 'Einspeisung'],
                              barmode='group',
-                             labels={'value': 'Energy (kWh)', 'TimePeriod': 'Date'},
-                             title='Monthly Energy Consumption and Feed-in')
+                             labels={'value': 'Energie (kWh)', 'TimePeriod': 'Monat'},
+                             title='Monatlicher Energiebezug und Einspeisung')
 
         # Customize x-axis for monthly data
         fig_monthly.update_layout(
@@ -92,7 +92,7 @@ def main():
         st.plotly_chart(fig_monthly, use_container_width=True)
 
     else:
-        st.warning('No data available to display.')
+        st.warning('Keine Daten zum Visualisieren')
 
 
 if __name__ == '__main__':
