@@ -67,12 +67,24 @@ def esl_data(directory='ESL-Files'):
                 }
 
     # Convert the dictionary to a list and sort it by 'TimePeriod'
-    sorted_data = sorted(time_period_data.values(), key=lambda x: datetime.strptime(x['TimePeriod'], '%Y-%m'))
+    sorted_data_cumulative = sorted(time_period_data.values(), key=lambda x: datetime.strptime(x['TimePeriod'], '%Y-%m'))
 
-    return sorted_data
+    last_month_consumption = 0
+    last_month_feed = 0
+    data_month = []
+    for i in sorted_data_cumulative:
+        data_month.append({
+            'TimePeriod': i['TimePeriod'],
+            'Bezug': i['Bezug'] - last_month_consumption,
+            'Einspeisung': i['Einspeisung'] - last_month_feed
+        })
+        last_month_consumption = i['Bezug']
+        last_month_feed = i['Einspeisung']
+
+    return sorted_data_cumulative, data_month
 
 
 # Example usage
 data = esl_data()
-for entry in data:
+for entry in data[0]:
     print(f"TimePeriod: {entry['TimePeriod']}, Bezug: {entry['Bezug']}, Einspeisung: {entry['Einspeisung']}")
