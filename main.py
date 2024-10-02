@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from ESLData import esl_data  # Assuming the ESL data processing function is in ESLData.py
+from ESLData import esl_data
 
 
 # Function to process the ESL data
@@ -31,11 +31,29 @@ def main():
         # User selection for time granularity
         time_granularity = st.selectbox('Wählen sie eine Zeitspanne aus', ('Monatlich', 'Jährlich'))
 
-        # Visualization for cumulative data
-        st.subheader('Cumulative Energy Data (Bezug and Einspeisung)')
-        st.dataframe(df_cumulative)
+        # Resample data based on the selected granularity
+        if time_granularity == 'Jährlich':
+            # Resample cumulative data to yearly, taking the last value of each year
+            df_cumulative_resampled = df_cumulative.resample('Y', on='TimePeriod').last().reset_index()
+            # Adjust 'TimePeriod' to the beginning of the year to correct the x-axis placement
+            df_cumulative_resampled['TimePeriod'] = df_cumulative_resampled['TimePeriod'].apply(lambda x: x.replace(month=1, day=1))
+            # Resample monthly data to yearly, summing the monthly values for the year
+            df_monthly_resampled = df_monthly.resample('Y', on='TimePeriod').sum().reset_index()
+            df_monthly_resampled['TimePeriod'] = df_monthly_resampled['TimePeriod'].apply(lambda x: x.replace(month=1, day=1))
 
-        fig_cumulative = px.line(df_cumulative, x='TimePeriod', y=['Bezug', 'Einspeisung'],
+            x_axis_format = "%Y"  # Show only the year
+            dtick = "M12"  # Ticks for every year
+        if time_granularity == 'Monatlich':
+            # Use original data for monthly granularity
+            df_cumulative_resampled = df_cumulative
+            df_monthly_resampled = df_monthly
+            x_axis_format = "%b %Y"  # Show month and year
+            dtick = "M1"  # Ticks for every month
+
+        # ---- Cumulative Data Visualization ----
+        st.subheader(f'Kumulative Energie Daten (Bezug and Einspeisung) - {time_granularity}')
+        st.dataframe(df_cumulative_resampled)
+        fig_cumulative = px.line(df_cumulative_resampled, x='TimePeriod', y=['Bezug', 'Einspeisung'],
                                  labels={'value': 'Energie (kWh)', 'TimePeriod': 'Zeitspanne'},
                                  title=f'Kumulativer Energiebezug und Einspeisung')
 
@@ -45,8 +63,8 @@ def main():
             margin=dict(l=40, r=40, b=100, t=80),
             xaxis=dict(
                 tickmode='linear',
-                dtick="M1",  # Monthly ticks
-                tickformat="%b %Y",  # Show month and year
+                dtick=dtick,  # Use appropriate ticks based on time granularity
+                tickformat=x_axis_format,  # Format based on time granularity
                 tickangle=-45,
                 title_font=dict(size=14),
                 tickfont=dict(size=12)
@@ -60,12 +78,12 @@ def main():
         # Display the cumulative plot
         st.plotly_chart(fig_cumulative, use_container_width=True)
 
-        # Visualization for monthly data using a bar chart (beam diagram)
-        st.subheader('Monatliche Energiestatistik (Bezug and Einspeisung)')
-        st.dataframe(df_monthly)
+        # ---- Monthly Data Visualization (Bar Chart) ----
+        st.subheader(f'Monatliche Energiestatistik (Bezug and Einspeisung) - {time_granularity}')
+        st.dataframe(df_monthly_resampled)
 
-        # Bar chart for monthly energy consumption
-        fig_monthly = px.bar(df_monthly, x='TimePeriod', y=['Bezug', 'Einspeisung'],
+        # Bar chart for monthly or yearly energy consumption
+        fig_monthly = px.bar(df_monthly_resampled, x='TimePeriod', y=['Bezug', 'Einspeisung'],
                              barmode='group',
                              labels={'value': 'Energie (kWh)', 'TimePeriod': 'Monat'},
                              title='Monatlicher Energiebezug und Einspeisung')
@@ -76,8 +94,8 @@ def main():
             margin=dict(l=40, r=40, b=100, t=80),
             xaxis=dict(
                 tickmode='linear',
-                dtick="M1",  # Monthly ticks
-                tickformat="%b %Y",  # Show month and year
+                dtick=dtick,  # Use appropriate ticks based on time granularity
+                tickformat=x_axis_format,  # Format based on time granularity
                 tickangle=-45,
                 title_font=dict(size=14),
                 tickfont=dict(size=12)
