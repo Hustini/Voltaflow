@@ -89,10 +89,6 @@ def monthly_data():
     st.subheader("Cumulative Data")
     st.write(df_cumulative)
 
-    # Display monthly data
-    st.subheader("Monthly Data")
-    st.write(df_monthly)
-
     # Plotting Cumulative Data as Line Chart
     st.subheader("Cumulative Data Visualization")
     fig_cumulative = px.line(df_cumulative,
@@ -103,6 +99,10 @@ def monthly_data():
                              markers=True)  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Time Period', yaxis_title='Cumulative Value')
     st.plotly_chart(fig_cumulative)
+
+    # Display monthly data
+    st.subheader("Monthly Data")
+    st.write(df_monthly)
 
     # Plotting Monthly Data
     st.subheader("Monthly Data Visualization")
