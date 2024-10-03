@@ -35,8 +35,8 @@ def daily_data():
     sequences_daily = data[1]
 
     # Convert to DataFrame for easier manipulation
-    df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Cumulative'])
-    df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Daily'])
+    df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Value'])
+    df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Value'])
 
     # Convert 'Date' columns to datetime format
     df_cumulative['Date'] = pd.to_datetime(df_cumulative['Date'])
@@ -58,7 +58,7 @@ def daily_data():
     st.subheader("Cumulative Data Visualization")
     fig_cumulative = px.line(df_cumulative,
                              x='Date',
-                             y='Cumulative',
+                             y='Value',
                              color='Label',
                              title='Cumulative Data Over Time',
                              labels={'Cumulative': 'Cumulative Value'},
@@ -70,11 +70,11 @@ def daily_data():
     st.subheader("Daily Data Visualization")
     fig_daily = px.bar(df_daily,
                        x='Date',
-                       y='Daily',
+                       y='Value',
                        color='Label',
                        title='Daily Data Over Time',
                        labels={'Daily': 'Daily Value'},
-                       text='Daily')
+                       text='Value')
     fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_daily.update_layout(xaxis_title='Date', yaxis_title='Daily Value', barmode='stack')
     st.plotly_chart(fig_daily)
