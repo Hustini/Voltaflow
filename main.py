@@ -41,6 +41,11 @@ def daily_data():
     df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Cumulative'])
     df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Daily'])
 
+    df_cumulative.to_csv("sdat_export/cumulative_data.csv", index=False)
+    df_cumulative.to_json("sdat_export/cumulative_data.json", orient="records")
+    df_daily.to_csv("sdat_export/daily_data.csv", index=False)
+    df_daily.to_json("sdat_export/daily_data.json", orient="records")
+
     # Display cumulative data
     st.subheader("Cumulative Data")
     st.write(df_cumulative)
@@ -54,10 +59,12 @@ def daily_data():
     fig_cumulative = px.line(df_cumulative,
                              x='Date',
                              y='Cumulative',
-                             color='Label',
+                             color="Label",
                              title='Cumulative Data Over Time',
                              labels={'Cumulative': 'Cumulative Value'},
-                             markers=True)  # Adding markers for clarity
+                             markers=True,
+                             color_discrete_sequence=["#ff0000", "#00ff00"]
+                             )  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Date', yaxis_title='Cumulative Value')
     st.plotly_chart(fig_cumulative)
 
@@ -66,10 +73,13 @@ def daily_data():
     fig_daily = px.bar(df_daily,
                        x='Date',
                        y='Daily',
-                       color='Label',
+                       color="Label",
                        title='Daily Data Over Time',
                        labels={'Daily': 'Daily Value'},
-                       text='Daily')
+                       text='Daily',
+                       color_discrete_sequence=["#ff0000", "#00ff00"]
+
+                       )
     fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_daily.update_layout(xaxis_title='Date', yaxis_title='Daily Value', barmode='stack')
     st.plotly_chart(fig_daily)
@@ -93,9 +103,12 @@ def monthly_data():
     fig_cumulative = px.line(df_cumulative,
                              x='TimePeriod',
                              y=['Bezug', 'Einspeisung'],
+
                              title='Cumulative Data Over Time',
                              labels={'value': 'Cumulative Value'},
-                             markers=True)  # Adding markers for clarity
+                             markers=True,
+                             color_discrete_sequence=["#ff0000", "#00ff00"]
+                             )  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Time Period', yaxis_title='Cumulative Value')
     st.plotly_chart(fig_cumulative)
 
@@ -110,8 +123,10 @@ def monthly_data():
                          y=['Bezug', 'Einspeisung'],
                          title='Monthly Data Over Time',
                          labels={'value': 'Monthly Value'},
+
                          text='value',
-                         barmode='group')  # Change to group
+                         barmode='group',
+                         color_discrete_sequence=["#ff0000", "#00ff00"])  # Change to group
     fig_monthly.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_monthly.update_layout(xaxis_title='Time Period', yaxis_title='Monthly Value')
     st.plotly_chart(fig_monthly)
@@ -156,7 +171,9 @@ def yearly_data():
         y=['Cumulative Bezug', 'Cumulative Einspeisung'],
         title='Cumulative Yearly Last Month Data Over Time',
         labels={'value': 'Cumulative Value'},
-        markers=True  # Adding markers for clarity
+
+        markers=True,  # Adding markers for clarity
+        color_discrete_sequence = ["#ff0000", "#00ff00"]
     )
     fig_cumulative_yearly.update_layout(xaxis_title='Year', yaxis_title='Cumulative Value')
     st.plotly_chart(fig_cumulative_yearly)
@@ -170,7 +187,9 @@ def yearly_data():
         title='Yearly Last Month Data Overview',
         labels={'value': 'Yearly Value'},
         text_auto=True,  # Show values on both bars
-        barmode='group'  # Grouped bar mode
+        barmode='group',  # Grouped bar mode
+        color_discrete_sequence=["#ff0000", "#00ff00"],
+
     )
     fig_yearly.update_layout(xaxis_title='Year', yaxis_title='Value')
     st.plotly_chart(fig_yearly)
@@ -191,28 +210,7 @@ def main():
     if time_granularity == 'Täglich':
         daily_data()
 
-    # Builtin Healthcheck features
-    # Get the current process ID
-    pid = os.getpid()
 
-    # Use psutil to access process information
-    process = psutil.Process(pid)
-
-    # Function to get RAM and CPU usage
-    def print_usage():
-        # Get the memory usage in MB
-        memory_usage = process.memory_info().rss / (1024 * 1024)
-        # Get the CPU usage in percentage
-        cpu_usage = process.cpu_percent(interval=1)
-
-        print(f"Memory Usage: {memory_usage:.2f} MB")
-        print(f"CPU Usage: {cpu_usage:.2f}%")
-
-    # Simulating a long-running task
-    while True:
-        # Do some computation here
-        time.sleep(30)  # Simulating a delay
-        print_usage()
 
 
 if __name__ == '__main__':
