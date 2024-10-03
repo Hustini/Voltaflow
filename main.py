@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from ESLData import esl_data
+from SDATData import sdat_data
+import datetime as dt
 
 st.set_page_config(layout="wide")
 CURRENT_THEME = "light"
@@ -23,16 +25,32 @@ def process_esl_data():
     return df_cumulative, df_monthly
 
 
+# Function to process the SDAT data
+def process_sdat_data(directory='SDAT-Files'):
+    # Call the sdat_data function to get cumulative and daily data
+    cumulative_data, daily_data = sdat_data(directory)
+
+    # Convert both lists to DataFrames
+    df_cumulative = pd.DataFrame(cumulative_data, columns=['Label', 'Timestamp', 'CumulativeVolume'])
+    df_daily = pd.DataFrame(daily_data, columns=['Label', 'Timestamp', 'DailyVolume'])
+
+    # Convert 'Timestamp' to datetime for easier resampling
+    df_cumulative['Timestamp'] = pd.to_datetime(df_cumulative['Timestamp'])
+    df_daily['Timestamp'] = pd.to_datetime(df_daily['Timestamp'])
+
+    return df_cumulative, df_daily
+
 # Streamlit app
 def main():
     st.title('Voltaflow Energie Visualizer')
 
-    # Parse the ESL data
+    # Parse data
     df_cumulative, df_monthly = process_esl_data()
+    df_cumulative_sdat, df_daily = process_sdat_data()
 
     if not df_cumulative.empty and not df_monthly.empty:
         # User selection for time granularity
-        time_granularity = st.selectbox('Wählen Sie eine Zeitspanne aus', ('Monatlich', 'Jährlich'))
+        time_granularity = st.selectbox('Wählen Sie eine Zeitspanne aus', ('Monatlich', 'Jährlich', 'Täglich'))
 
         # Resample data based on user selection (yearly or monthly)
         if time_granularity == 'Jährlich':
@@ -57,6 +75,8 @@ def main():
             cumulative_title = 'Kumulativer monatlicher Energiebezug und Einspeisung'
             monthly_title = 'Monatlicher Energiebezug und Einspeisung'
             xaxis_format = "%b %Y"  # Monthly format
+        if time_granularity == 'Täglich':
+            daily_data()
 
         # Visualization for cumulative data
         st.subheader('Cumulative Energy Data (Bezug and Einspeisung)')
@@ -74,12 +94,11 @@ def main():
             margin=dict(l=40, r=40, b=100, t=80),
             xaxis=dict(
                 tickmode='linear',
-                dtick="M12" if time_granularity == 'Jährlich' else "M1",  # Adjust tick based on granularity
-                tickformat=xaxis_format,  # Dynamic format for month/year
+                dtick="M12" if time_granularity == 'Jährlich' else "D1" if time_granularity == 'Täglich' else "M1",
+                tickformat=xaxis_format,
                 tickangle=-45,
                 title_font=dict(size=14),
                 tickfont=dict(size=12),
-
             ),
             yaxis=dict(
                 title_font=dict(size=14),
