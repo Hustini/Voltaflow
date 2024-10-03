@@ -146,7 +146,7 @@ def yearly_data():
     st.subheader("Cumulative Yearly Data Table")
     st.write(yearly_last_month)
 
-    # First Chart: Plot Yearly Last Month Data as Line Chart (using the first value from the tuple)
+    # --- First Chart: Plot Yearly Last Month Data as Line Chart ---
     st.subheader("Cumulative Yearly Data Visualization")
     fig_yearly = px.line(
         yearly_last_month,
@@ -158,6 +158,28 @@ def yearly_data():
     )
     fig_yearly.update_layout(xaxis_title='Year', yaxis_title='Value')
     st.plotly_chart(fig_yearly)
+
+    # --- Second Chart: Year-over-Year Difference Calculation ---
+    # Calculate year-over-year difference for Bezug and Einspeisung
+    yearly_last_month['Bezug Difference'] = yearly_last_month['Bezug'].diff().fillna(yearly_last_month['Bezug'])
+    yearly_last_month['Einspeisung Difference'] = yearly_last_month['Einspeisung'].diff().fillna(yearly_last_month['Einspeisung'])
+
+    # Display the Year-over-Year Differences
+    st.subheader("Year-over-Year Differences Table")
+    st.write(yearly_last_month[['Year', 'Bezug Difference', 'Einspeisung Difference']])
+
+    # --- Second Chart: Bar Chart for Year-over-Year Differences ---
+    st.subheader("Year-over-Year Differences Visualization")
+    fig_difference = px.bar(
+        yearly_last_month,
+        x='Year',
+        y=['Bezug Difference', 'Einspeisung Difference'],
+        barmode='group',  # Grouped bar chart to compare values side-by-side
+        title='Year-over-Year Differences',
+        labels={'value': 'Difference'}
+    )
+    fig_difference.update_layout(xaxis_title='Year', yaxis_title='Difference in Value')
+    st.plotly_chart(fig_difference)
 
 
 # Streamlit app
