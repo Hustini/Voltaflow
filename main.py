@@ -3,8 +3,11 @@ import pandas as pd
 import plotly.express as px
 from ESLData import esl_data
 from SDATData import sdat_data
-import datetime as dt
+import psutil
+import os
+import time
 
+# for Streamlit Theming
 st.set_page_config(layout="wide")
 CURRENT_THEME = "light"
 
@@ -17,28 +20,16 @@ def process_esl_data():
     # Convert both lists to DataFrames
     df_cumulative = pd.DataFrame(cumulative_data)
     df_monthly = pd.DataFrame(monthly_data)
-
+    #exporting esl data
+    df_cumulative.to_csv("esl_export/cumulative_data.csv", index=False)
+    df_cumulative.to_json("esl_export/cumulative_data.json", orient="records")
+    df_monthly.to_csv("esl_export/monthly_data.csv", index=False)
+    df_monthly.to_json("esl_export/monthly_data.json", orient="records")
     # Convert 'TimePeriod' to datetime for easier resampling
     df_cumulative['TimePeriod'] = pd.to_datetime(df_cumulative['TimePeriod'], format='%Y-%m')
     df_monthly['TimePeriod'] = pd.to_datetime(df_monthly['TimePeriod'], format='%Y-%m')
 
     return df_cumulative, df_monthly
-
-
-# Function to process the SDAT data
-def process_sdat_data(directory='SDAT-Files'):
-    # Call the sdat_data function to get cumulative and daily data
-    cumulative_data, daily_data = sdat_data(directory)
-
-    # Convert both lists to DataFrames
-    df_cumulative = pd.DataFrame(cumulative_data, columns=['Label', 'Timestamp', 'CumulativeVolume'])
-    df_daily = pd.DataFrame(daily_data, columns=['Label', 'Timestamp', 'DailyVolume'])
-
-    # Convert 'Timestamp' to datetime for easier resampling
-    df_cumulative['Timestamp'] = pd.to_datetime(df_cumulative['Timestamp'])
-    df_daily['Timestamp'] = pd.to_datetime(df_daily['Timestamp'])
-
-    return df_cumulative, df_daily
 
 
 def daily_data():
@@ -204,6 +195,30 @@ def main():
             monthly_data()
         if time_granularity == 'Täglich':
             daily_data()
+
+        # Builtin Healthcheck features
+        # Get the current process ID
+        pid = os.getpid()
+
+        # Use psutil to access process information
+        process = psutil.Process(pid)
+
+        # Function to get RAM and CPU usage
+        def print_usage():
+            # Get the memory usage in MB
+            memory_usage = process.memory_info().rss / (1024 * 1024)
+            # Get the CPU usage in percentage
+            cpu_usage = process.cpu_percent(interval=1)
+
+            print(f"Memory Usage: {memory_usage:.2f} MB")
+            print(f"CPU Usage: {cpu_usage:.2f}%")
+
+        # Simulating a long-running task
+        while True:
+            # Do some computation here
+            time.sleep(30)  # Simulating a delay
+            print_usage()
+
 
     else:
         st.warning('Keine Daten zum Visualisieren')
