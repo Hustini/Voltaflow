@@ -118,11 +118,12 @@ def monthly_data():
 
 
 def yearly_data():
-    # Call the esl_data function
+    # Call the esl_data function and unpack the returned tuple
     data = esl_data()
 
-    # Convert the sorted cumulative data into a DataFrame
-    df_yearly = pd.DataFrame(data[0])  # Use the first element of the returned tuple
+    # --- First Chart: Processing the first dataset ---
+    # Convert the first element (sorted cumulative data) into a DataFrame for the first chart
+    df_yearly = pd.DataFrame(data[0])
 
     # Convert TimePeriod to datetime for proper sorting and visualization
     df_yearly['TimePeriod'] = pd.to_datetime(df_yearly['TimePeriod'], format='%Y-%m')
@@ -145,32 +146,18 @@ def yearly_data():
     yearly_last_month['Cumulative Einspeisung'] = yearly_last_month['Einspeisung'].cumsum()
 
     # Debug: Display the yearly data for confirmation
-    st.subheader("Yearly Last Month Data Table")
+    st.subheader("Cumulative Yearly Data Table")
     st.write(yearly_last_month)
 
-    # Plotting Cumulative Yearly Data as Line Chart
-    st.subheader("Cumulative Yearly Last Month Data Visualization")
-    fig_cumulative_yearly = px.line(
-        yearly_last_month,
-        x='Year',
-        y=['Cumulative Bezug', 'Cumulative Einspeisung'],
-        title='Cumulative Yearly Last Month Data Over Time',
-        labels={'value': 'Cumulative Value'},
-        markers=True  # Adding markers for clarity
-    )
-    fig_cumulative_yearly.update_layout(xaxis_title='Year', yaxis_title='Cumulative Value')
-    st.plotly_chart(fig_cumulative_yearly)
-
-    # Plotting Yearly Last Month Data as Bar Chart
-    st.subheader("Yearly Last Month Data Visualization")
-    fig_yearly = px.bar(
+    # First Chart: Plot Yearly Last Month Data as Line Chart (using the first value from the tuple)
+    st.subheader("Cumulative Yearly Data Visualization")
+    fig_yearly = px.line(
         yearly_last_month,
         x='Year',
         y=['Bezug', 'Einspeisung'],
         title='Yearly Last Month Data Overview',
         labels={'value': 'Yearly Value'},
-        text_auto=True,  # Show values on both bars
-        barmode='group'  # Grouped bar mode
+        markers=True  # Add markers for each data point for better clarity
     )
     fig_yearly.update_layout(xaxis_title='Year', yaxis_title='Value')
     st.plotly_chart(fig_yearly)
