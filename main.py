@@ -147,24 +147,24 @@ def yearly_data():
     }).reset_index()
 
     # Calculate cumulative values based on the last month's values
-    yearly_last_month['Cumulative Bezug'] = yearly_last_month['Bezug'].cumsum()
-    yearly_last_month['Cumulative Einspeisung'] = yearly_last_month['Einspeisung'].cumsum()
+    yearly_last_month['Kumulative Bezug'] = yearly_last_month['Bezug'].cumsum()
+    yearly_last_month['Kumulative Einspeisung'] = yearly_last_month['Einspeisung'].cumsum()
 
     # Debug: Display the yearly data for confirmation
-    st.subheader("Cumulative Yearly Data Table")
+    st.subheader("Tabelle der Jährlichen Daten (Kumulativ)")
     st.write(yearly_last_month)
 
     # --- First Chart: Plot Yearly Last Month Data as Line Chart ---
-    st.subheader("Cumulative Yearly Data Visualization")
+    st.subheader("Jährliche Datenvisualisierung (Kumulativ)")
     fig_yearly = px.line(
         yearly_last_month,
         x='Year',
         y=['Bezug', 'Einspeisung'],
-        title='Yearly Last Month Data Overview',
+        title='Jährliche Datenvisualisierung',
         labels={'value': 'Yearly Value'},
         markers=True  # Add markers for each data point for better clarity
     )
-    fig_yearly.update_layout(xaxis_title='Year', yaxis_title='Value')
+    fig_yearly.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_yearly)
 
     # --- Second Chart: Year-over-Year Difference Calculation ---
@@ -173,20 +173,20 @@ def yearly_data():
     yearly_last_month['Einspeisung Difference'] = yearly_last_month['Einspeisung'].diff().fillna(yearly_last_month['Einspeisung'])
 
     # Display the Year-over-Year Differences
-    st.subheader("Year-over-Year Differences Table")
-    st.write(yearly_last_month[['Year', 'Bezug Difference', 'Einspeisung Difference']])
+    st.subheader("Tabelle der Jährlichen Daten")
+    st.write(yearly_last_month[['Year', 'Bezug', 'Einspeisung']])
 
     # --- Second Chart: Bar Chart for Year-over-Year Differences ---
-    st.subheader("Year-over-Year Differences Visualization")
+    st.subheader("Jährliche Datenvisualisierung")
     fig_difference = px.bar(
         yearly_last_month,
         x='Year',
         y=['Bezug Difference', 'Einspeisung Difference'],
         barmode='group',  # Grouped bar chart to compare values side-by-side
-        title='Year-over-Year Differences',
+        title='Jährliche Daten',
         labels={'value': 'Difference'}
     )
-    fig_difference.update_layout(xaxis_title='Year', yaxis_title='Difference in Value')
+    fig_difference.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_difference)
 
 
