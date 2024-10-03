@@ -1,3 +1,5 @@
+import csv
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -9,24 +11,27 @@ st.set_page_config(layout="wide")
 CURRENT_THEME = "light"
 
 
-# Function to process the ESL data
-def process_esl_data():
-    # Parse the ESL files and convert them to two DataFrames: cumulative and monthly
-    cumulative_data, monthly_data = esl_data()
+def export_to_csv(data, filename, directory):
+    """Export data to a CSV file, replacing 'Bezug' with 'ID742' in the output."""
+    # Create the directory if it doesn't exist
+    os.makedirs(directory, exist_ok=True)
 
-    # Convert both lists to DataFrames
-    df_cumulative = pd.DataFrame(cumulative_data)
-    df_monthly = pd.DataFrame(monthly_data)
-    #exporting esl data
-    df_cumulative.to_csv("esl_export/cumulative_data.csv", index=False)
-    df_cumulative.to_json("esl_export/cumulative_data.json", orient="records")
-    df_monthly.to_csv("esl_export/monthly_data.csv", index=False)
-    df_monthly.to_json("esl_export/monthly_data.json", orient="records")
-    # Convert 'TimePeriod' to datetime for easier resampling
-    df_cumulative['TimePeriod'] = pd.to_datetime(df_cumulative['TimePeriod'], format='%Y-%m')
-    df_monthly['TimePeriod'] = pd.to_datetime(df_monthly['TimePeriod'], format='%Y-%m')
+    # Combine directory and filename to create a full path
+    file_path = os.path.join(directory, filename)
 
-    return df_cumulative, df_monthly
+    with open(file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        # Write header
+        writer.writerow(['Sensor_ID', 'DateTime', 'Value'])
+        # Write data
+        for entry in data:
+            # Replace 'Bezug' with 'ID742' in the label for the CSV output
+            label = entry[0]
+            if label == 'Bezug':
+                label = 'ID742'
+            else:
+                label = 'ID735'
+            writer.writerow([label, entry[1], entry[2]])
 
 
 def daily_data():
@@ -214,4 +219,8 @@ def main():
 
 if __name__ == '__main__':
     main()
-    process_esl_data()
+    # Call the function to execute
+    cumulative_data, daily_data = sdat_data()
+    # Export both cumulative and daily data to CSV files
+    export_to_csv(cumulative_data, 'cumulative_data.csv', 'Exports')
+    export_to_csv(daily_data, 'daily_data.csv', 'Exports')
