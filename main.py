@@ -40,6 +40,59 @@ def process_sdat_data(directory='SDAT-Files'):
 
     return df_cumulative, df_daily
 
+
+def daily_data():
+    data = sdat_data()
+    sequences_cumulative = data[0]
+    sequences_daily = data[1]
+
+    # Convert to DataFrame for easier manipulation
+    df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Cumulative'])
+    df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Daily'])
+
+    # Display cumulative data
+    st.subheader("Cumulative Data")
+    st.write(df_cumulative)
+
+    # Display daily data
+    st.subheader("Daily Data")
+    st.write(df_daily)
+
+    # Plotting Cumulative Data
+    st.subheader("Cumulative Data Visualization")
+    fig_cumulative = px.bar(df_cumulative,
+                            x='Date',
+                            y='Cumulative',
+                            color='Label',
+                            title='Cumulative Data Over Time',
+                            labels={'Cumulative': 'Cumulative Value'},
+                            text='Cumulative')
+    fig_cumulative.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig_cumulative.update_layout(xaxis_title='Date', yaxis_title='Cumulative Value', barmode='stack')
+    st.plotly_chart(fig_cumulative)
+
+    # Plotting Daily Data
+    st.subheader("Daily Data Visualization")
+    fig_daily = px.bar(df_daily,
+                       x='Date',
+                       y='Daily',
+                       color='Label',
+                       title='Daily Data Over Time',
+                       labels={'Daily': 'Daily Value'},
+                       text='Daily')
+    fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig_daily.update_layout(xaxis_title='Date', yaxis_title='Daily Value', barmode='stack')
+    st.plotly_chart(fig_daily)
+
+
+def monthly_data():
+    pass
+
+
+def yearly_data():
+    pass
+
+
 # Streamlit app
 def main():
     st.title('Voltaflow Energie Visualizer')
