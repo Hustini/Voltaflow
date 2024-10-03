@@ -3,9 +3,6 @@ import pandas as pd
 import plotly.express as px
 from ESLData import esl_data
 from SDATData import sdat_data
-import psutil
-import os
-import time
 
 # for Streamlit Theming
 st.set_page_config(layout="wide")
@@ -177,29 +174,6 @@ def main():
         monthly_data()
     if time_granularity == 'Täglich':
         daily_data()
-
-    # Builtin Healthcheck features
-    # Get the current process ID
-    pid = os.getpid()
-
-    # Use psutil to access process information
-    process = psutil.Process(pid)
-
-    # Function to get RAM and CPU usage
-    def print_usage():
-        # Get the memory usage in MB
-        memory_usage = process.memory_info().rss / (1024 * 1024)
-        # Get the CPU usage in percentage
-        cpu_usage = process.cpu_percent(interval=1)
-
-        print(f"Memory Usage: {memory_usage:.2f} MB")
-        print(f"CPU Usage: {cpu_usage:.2f}%")
-
-    # Simulating a long-running task
-    while True:
-        # Do some computation here
-        time.sleep(30)  # Simulating a delay
-        print_usage()
 
 
 if __name__ == '__main__':
