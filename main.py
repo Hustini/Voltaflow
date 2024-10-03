@@ -128,7 +128,62 @@ def monthly_data():
 
 
 def yearly_data():
-    pass
+    # Call the esl_data function
+    data = esl_data()
+
+    # Convert the sorted cumulative data into a DataFrame
+    df_yearly = pd.DataFrame(data[0])  # Use the first element of the returned tuple
+
+    # Convert TimePeriod to datetime for proper sorting and visualization
+    df_yearly['TimePeriod'] = pd.to_datetime(df_yearly['TimePeriod'], format='%Y-%m')
+
+    # Extract Year and Month for grouping
+    df_yearly['Year'] = df_yearly['TimePeriod'].dt.year
+    df_yearly['Month'] = df_yearly['TimePeriod'].dt.month
+
+    # Get the last month of each year
+    last_month_data = df_yearly[df_yearly.groupby('Year')['Month'].transform('max') == df_yearly['Month']]
+
+    # Aggregate values for the last month of each year
+    yearly_last_month = last_month_data.groupby('Year').agg({
+        'Bezug': 'sum',
+        'Einspeisung': 'sum'
+    }).reset_index()
+
+    # Calculate cumulative values based on the last month's values
+    yearly_last_month['Cumulative Bezug'] = yearly_last_month['Bezug'].cumsum()
+    yearly_last_month['Cumulative Einspeisung'] = yearly_last_month['Einspeisung'].cumsum()
+
+    # Debug: Display the yearly data for confirmation
+    st.subheader("Yearly Last Month Data Table")
+    st.write(yearly_last_month)
+
+    # Plotting Cumulative Yearly Data as Line Chart
+    st.subheader("Cumulative Yearly Last Month Data Visualization")
+    fig_cumulative_yearly = px.line(
+        yearly_last_month,
+        x='Year',
+        y=['Cumulative Bezug', 'Cumulative Einspeisung'],
+        title='Cumulative Yearly Last Month Data Over Time',
+        labels={'value': 'Cumulative Value'},
+        markers=True  # Adding markers for clarity
+    )
+    fig_cumulative_yearly.update_layout(xaxis_title='Year', yaxis_title='Cumulative Value')
+    st.plotly_chart(fig_cumulative_yearly)
+
+    # Plotting Yearly Last Month Data as Bar Chart
+    st.subheader("Yearly Last Month Data Visualization")
+    fig_yearly = px.bar(
+        yearly_last_month,
+        x='Year',
+        y=['Bezug', 'Einspeisung'],
+        title='Yearly Last Month Data Overview',
+        labels={'value': 'Yearly Value'},
+        text_auto=True,  # Show values on both bars
+        barmode='group'  # Grouped bar mode
+    )
+    fig_yearly.update_layout(xaxis_title='Year', yaxis_title='Value')
+    st.plotly_chart(fig_yearly)
 
 
 # Streamlit app
