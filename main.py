@@ -47,18 +47,19 @@ def daily_data():
     df_daily.sort_values(by='Datum', inplace=True)
 
     # Display cumulative data
-    st.subheader("Tabelle der Daten (Kumulative)")
+    st.subheader("Tabelle der Daten (Kumulativ)")
     st.write(df_cumulative)
 
     # Plotting Cumulative Data as Line Chart
-    st.subheader("Datenvisualisierung (Kumulative)")
+    st.subheader("Datenvisualisierung (Kumulativ)")
     fig_cumulative = px.line(df_cumulative,
                              x='Datum',
                              y='Wert',
                              color='Label',
                              title='Daten (Kumulative)',
                              labels={'Cumulative': 'Cumulative Value'},
-                             markers=True)  # Adding markers for clarity
+                             markers=True,
+                             color_discrete_sequence=["#ff0000", "#00ff00"])  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
@@ -74,7 +75,8 @@ def daily_data():
                        color='Label',
                        title='Daten',
                        labels={'Daily': 'Daily Value'},
-                       text='Wert')
+                       text='Wert',
+                       color_discrete_sequence=["#ff0000", "#00ff00"])
     fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_daily.update_layout(xaxis_title='Datum', yaxis_title='Wert', barmode='stack')
     st.plotly_chart(fig_daily)
@@ -90,7 +92,7 @@ def monthly_data():
     df_monthly = pd.DataFrame(data_month)
 
     # Display cumulative data
-    st.subheader("Tabelle der monatlichen Daten (Kumulative)")
+    st.subheader("Tabelle der monatlichen Daten (Kumulativ)")
     st.write(df_cumulative)
 
     # Plotting Cumulative Data as Line Chart
@@ -100,7 +102,8 @@ def monthly_data():
                              y=['Bezug', 'Einspeisung'],
                              title='Monatliche Datenvisualisierung (Kumulative)',
                              labels={'value': 'Cumulative Value'},
-                             markers=True)  # Adding markers for clarity
+                             markers=True,
+                             color_discrete_sequence=["#ff0000", "#00ff00"])  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
@@ -116,7 +119,8 @@ def monthly_data():
                          title='Monatliche Datenvisualisierung',
                          labels={'value': 'Monthly Value'},
                          text='value',
-                         barmode='group')  # Change to group
+                         barmode='group',
+                         color_discrete_sequence=["#ff0000", "#00ff00"])  # Change to group
     fig_monthly.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_monthly.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_monthly)
@@ -162,15 +166,16 @@ def yearly_data():
         y=['Bezug', 'Einspeisung'],
         title='Jährliche Datenvisualisierung',
         labels={'value': 'Yearly Value'},
-        markers=True  # Add markers for each data point for better clarity
+        markers=True, # Add markers for each data point for better clarity
+        color_discrete_sequence=["#ff0000", "#00ff00"]
     )
     fig_yearly.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_yearly)
 
     # --- Second Chart: Year-over-Year Difference Calculation ---
     # Calculate year-over-year difference for Bezug and Einspeisung
-    yearly_last_month['Bezug Difference'] = yearly_last_month['Bezug'].diff().fillna(yearly_last_month['Bezug'])
-    yearly_last_month['Einspeisung Difference'] = yearly_last_month['Einspeisung'].diff().fillna(yearly_last_month['Einspeisung'])
+    yearly_last_month['Bezug Differenz'] = yearly_last_month['Bezug'].diff().fillna(yearly_last_month['Bezug'])
+    yearly_last_month['Einspeisung Differenz'] = yearly_last_month['Einspeisung'].diff().fillna(yearly_last_month['Einspeisung'])
 
     # Display the Year-over-Year Differences
     st.subheader("Tabelle der Jährlichen Daten")
@@ -181,10 +186,11 @@ def yearly_data():
     fig_difference = px.bar(
         yearly_last_month,
         x='Year',
-        y=['Bezug Difference', 'Einspeisung Difference'],
+        y=['Bezug Differenz', 'Einspeisung Differenz'],
         barmode='group',  # Grouped bar chart to compare values side-by-side
         title='Jährliche Daten',
-        labels={'value': 'Difference'}
+        labels={'value': 'Differenz'},
+        color_discrete_sequence=["#ff0000", "#00ff00"]
     )
     fig_difference.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_difference)
