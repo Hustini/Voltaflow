@@ -2,9 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from ESLData import esl_data
+import psutil
+import os
+import time
 
+
+# for Streamlit Theming
 st.set_page_config(layout="wide")
 CURRENT_THEME = "light"
+
+
 
 
 # Function to process the ESL data
@@ -15,7 +22,11 @@ def process_esl_data():
     # Convert both lists to DataFrames
     df_cumulative = pd.DataFrame(cumulative_data)
     df_monthly = pd.DataFrame(monthly_data)
-
+    #exporting esl data
+    df_cumulative.to_csv("esl_export/cumulative_data.csv", index=False)
+    df_cumulative.to_json("esl_export/cumulative_data.json", orient="records")
+    df_monthly.to_csv("esl_export/monthly_data.csv", index=False)
+    df_monthly.to_json("esl_export/monthly_data.json", orient="records")
     # Convert 'TimePeriod' to datetime for easier resampling
     df_cumulative['TimePeriod'] = pd.to_datetime(df_cumulative['TimePeriod'], format='%Y-%m')
     df_monthly['TimePeriod'] = pd.to_datetime(df_monthly['TimePeriod'], format='%Y-%m')
@@ -57,6 +68,26 @@ def main():
             cumulative_title = 'Kumulativer monatlicher Energiebezug und Einspeisung'
             monthly_title = 'Monatlicher Energiebezug und Einspeisung'
             xaxis_format = "%b %Y"  # Monthly format
+
+        # Resample data based on the selected granularity
+        if time_granularity == 'Jährlich':
+            # Resample cumulative data to yearly, taking the last value of each year
+            df_cumulative_resampled = df_cumulative.resample('YE', on='TimePeriod').last().reset_index()
+            # Adjust 'TimePeriod' to the beginning of the year to correct the x-axis placement
+            df_cumulative_resampled['TimePeriod'] = df_cumulative_resampled['TimePeriod'].apply(
+                lambda x: x.replace(month=1, day=1))
+            # Resample monthly data to yearly, summing the monthly values for the year
+            df_monthly_resampled = df_monthly.resample('YE', on='TimePeriod').sum().reset_index()
+            df_monthly_resampled['TimePeriod'] = df_monthly_resampled['TimePeriod'].apply(
+                lambda x: x.replace(month=1, day=1))
+            x_axis_format = "%YE"  # Show only the year
+            dtick = "M12"  # Ticks for every year
+        if time_granularity == 'Monatlich':
+            # Use original data for monthly granularity
+            df_cumulative_resampled = df_cumulative
+            df_monthly_resampled = df_monthly
+            x_axis_format = "%b %Y"  # Show month and year
+            dtick = "M1"  # Ticks for every month
 
         # Visualization for cumulative data
         st.subheader('Cumulative Energy Data (Bezug and Einspeisung)')
@@ -124,6 +155,31 @@ def main():
 
         # Display the monthly bar chart
         st.plotly_chart(fig_monthly, use_container_width=False)
+
+        # Builtin Healthcheck features
+
+        # Get the current process ID
+        pid = os.getpid()
+
+        # Use psutil to access process information
+        process = psutil.Process(pid)
+
+        # Function to get RAM and CPU usage
+        def print_usage():
+            # Get the memory usage in MB
+            memory_usage = process.memory_info().rss / (1024 * 1024)
+            # Get the CPU usage in percentage
+            cpu_usage = process.cpu_percent(interval=1)
+
+            print(f"Memory Usage: {memory_usage:.2f} MB")
+            print(f"CPU Usage: {cpu_usage:.2f}%")
+
+        # Simulating a long-running task
+        while True:
+            # Do some computation here
+            time.sleep(30)  # Simulating a delay
+            print_usage()
+
 
     else:
         st.warning('Keine Daten zum Visualisieren')
