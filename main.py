@@ -86,7 +86,45 @@ def daily_data():
 
 
 def monthly_data():
-    pass
+    data = esl_data()
+    sorted_data_cumulative = data[0]
+    data_month = data[1]
+
+    # Convert to DataFrame for easier manipulation
+    df_cumulative = pd.DataFrame(sorted_data_cumulative)
+    df_monthly = pd.DataFrame(data_month)
+
+    # Display cumulative data
+    st.subheader("Cumulative Data")
+    st.write(df_cumulative)
+
+    # Display monthly data
+    st.subheader("Monthly Data")
+    st.write(df_monthly)
+
+    # Plotting Cumulative Data as Line Chart
+    st.subheader("Cumulative Data Visualization")
+    fig_cumulative = px.line(df_cumulative,
+                             x='TimePeriod',
+                             y=['Bezug', 'Einspeisung'],
+                             title='Cumulative Data Over Time',
+                             labels={'value': 'Cumulative Value'},
+                             markers=True)  # Adding markers for clarity
+    fig_cumulative.update_layout(xaxis_title='Time Period', yaxis_title='Cumulative Value')
+    st.plotly_chart(fig_cumulative)
+
+    # Plotting Monthly Data
+    st.subheader("Monthly Data Visualization")
+    fig_monthly = px.bar(df_monthly,
+                         x='TimePeriod',
+                         y=['Bezug', 'Einspeisung'],
+                         title='Monthly Data Over Time',
+                         labels={'value': 'Monthly Value'},
+                         text='value',
+                         barmode='group')  # Change to group
+    fig_monthly.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig_monthly.update_layout(xaxis_title='Time Period', yaxis_title='Monthly Value')
+    st.plotly_chart(fig_monthly)
 
 
 def yearly_data():
@@ -99,7 +137,6 @@ def main():
 
     # Parse data
     df_cumulative, df_monthly = process_esl_data()
-    df_cumulative_sdat, df_daily = process_sdat_data()
 
     if not df_cumulative.empty and not df_monthly.empty:
         # User selection for time granularity
@@ -107,95 +144,11 @@ def main():
 
         # Resample data based on user selection (yearly or monthly)
         if time_granularity == 'Jährlich':
-            # Resample cumulative data to yearly
-            df_cumulative_resampled = df_cumulative.resample('Y', on='TimePeriod').sum()
-            df_cumulative_resampled['TimePeriod'] = df_cumulative_resampled.index
-
-            # Resample monthly data to yearly
-            df_monthly_resampled = df_monthly.resample('Y', on='TimePeriod').sum()
-            df_monthly_resampled['TimePeriod'] = df_monthly_resampled.index
-
-            # Set title for yearly
-            cumulative_title = 'Kumulativer jährlicher Energiebezug und Einspeisung'
-            monthly_title = 'Jährlicher Energiebezug und Einspeisung'
-            xaxis_format = "%Y"  # Yearly format
+            yearly_data()
         if time_granularity == 'Monatlich':
-            # No resampling needed for monthly data
-            df_cumulative_resampled = df_cumulative
-            df_monthly_resampled = df_monthly
-
-            # Set title for monthly
-            cumulative_title = 'Kumulativer monatlicher Energiebezug und Einspeisung'
-            monthly_title = 'Monatlicher Energiebezug und Einspeisung'
-            xaxis_format = "%b %Y"  # Monthly format
+            monthly_data()
         if time_granularity == 'Täglich':
             daily_data()
-
-        # Visualization for cumulative data
-        st.subheader('Cumulative Energy Data (Bezug and Einspeisung)')
-        st.dataframe(df_cumulative_resampled)
-
-        fig_cumulative = px.line(df_cumulative_resampled, x='TimePeriod', y=['Bezug', 'Einspeisung'],
-                                 labels={'value': 'Energie (kWh)', 'TimePeriod': 'Zeitspanne'},
-                                 title=cumulative_title,
-                                 color_discrete_sequence=["#ff0000", "#00ff00"]
-                                 )
-
-        # Customize x-axis for cumulative data
-        fig_cumulative.update_layout(
-            autosize=False,
-            margin=dict(l=40, r=40, b=100, t=80),
-            xaxis=dict(
-                tickmode='linear',
-                dtick="M12" if time_granularity == 'Jährlich' else "D1" if time_granularity == 'Täglich' else "M1",
-                tickformat=xaxis_format,
-                tickangle=-45,
-                title_font=dict(size=14),
-                tickfont=dict(size=12),
-            ),
-            yaxis=dict(
-                title_font=dict(size=14),
-                tickfont=dict(size=12)
-            )
-        )
-
-        # Display the cumulative plot
-        st.plotly_chart(fig_cumulative, use_container_width=False)
-
-        # Visualization for monthly data using a bar chart (beam diagram)
-        st.subheader('Monatliche/Jährliche Energiestatistik (Bezug and Einspeisung)')
-        st.dataframe(df_monthly_resampled)
-        # Bar chart for monthly energy consumption
-        fig_monthly = px.bar(df_monthly_resampled, x='TimePeriod', y=['Bezug', 'Einspeisung'],
-                             barmode='group',
-                             labels={'value': 'Energie (kWh)', 'TimePeriod': 'Monat'},
-                             title=monthly_title,
-                             color_discrete_sequence=["#ff0000", "#00ff00"]
-                             )
-
-        # Customize x-axis for monthly data
-        fig_monthly.update_layout(
-            autosize=False,
-            width=1500,
-            height=400,
-            margin=dict(l=40, r=40, b=100, t=80),
-            xaxis=dict(
-                tickmode='linear',
-                dtick="M12" if time_granularity == 'Jährlich' else "M1",  # Adjust tick based on granularity
-                tickformat=xaxis_format,  # Dynamic format for month/year
-                tickangle=-45,
-                title_font=dict(size=14),
-                tickfont=dict(size=12)
-            ),
-            yaxis=dict(
-                title_font=dict(size=14),
-                tickfont=dict(size=12)
-            ),
-            overwrite=True
-        )
-
-        # Display the monthly bar chart
-        st.plotly_chart(fig_monthly, use_container_width=False)
 
     else:
         st.warning('Keine Daten zum Visualisieren')
