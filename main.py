@@ -35,48 +35,48 @@ def daily_data():
     sequences_daily = data[1]
 
     # Convert to DataFrame for easier manipulation
-    df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Value'])
-    df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Value'])
+    df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Datum', 'Wert'])
+    df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Datum', 'Wert'])
 
     # Convert 'Date' columns to datetime format
-    df_cumulative['Date'] = pd.to_datetime(df_cumulative['Date'])
-    df_daily['Date'] = pd.to_datetime(df_daily['Date'])
+    df_cumulative['Datum'] = pd.to_datetime(df_cumulative['Datum'])
+    df_daily['Datum'] = pd.to_datetime(df_daily['Datum'])
 
     # Sort the DataFrames by 'Date'
-    df_cumulative.sort_values(by='Date', inplace=True)
-    df_daily.sort_values(by='Date', inplace=True)
+    df_cumulative.sort_values(by='Datum', inplace=True)
+    df_daily.sort_values(by='Datum', inplace=True)
 
     # Display cumulative data
-    st.subheader("Cumulative Data")
+    st.subheader("Tabelle der Daten (Kumulative)")
     st.write(df_cumulative)
 
-    # Display daily data
-    st.subheader("Daily Data")
-    st.write(df_daily)
-
     # Plotting Cumulative Data as Line Chart
-    st.subheader("Cumulative Data Visualization")
+    st.subheader("Datenvisualisierung (Kumulative)")
     fig_cumulative = px.line(df_cumulative,
-                             x='Date',
-                             y='Value',
+                             x='Datum',
+                             y='Wert',
                              color='Label',
-                             title='Cumulative Data Over Time',
+                             title='Daten (Kumulative)',
                              labels={'Cumulative': 'Cumulative Value'},
                              markers=True)  # Adding markers for clarity
-    fig_cumulative.update_layout(xaxis_title='Date', yaxis_title='Cumulative Value')
+    fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
+    # Display daily data
+    st.subheader("Tabelle der Daten")
+    st.write(df_daily)
+
     # Plotting Daily Data
-    st.subheader("Daily Data Visualization")
+    st.subheader("Datenvisualisierung")
     fig_daily = px.bar(df_daily,
-                       x='Date',
-                       y='Value',
+                       x='Datum',
+                       y='Wert',
                        color='Label',
-                       title='Daily Data Over Time',
+                       title='Daten',
                        labels={'Daily': 'Daily Value'},
-                       text='Value')
+                       text='Wert')
     fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-    fig_daily.update_layout(xaxis_title='Date', yaxis_title='Daily Value', barmode='stack')
+    fig_daily.update_layout(xaxis_title='Datum', yaxis_title='Wert', barmode='stack')
     st.plotly_chart(fig_daily)
 
 
