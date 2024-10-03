@@ -22,7 +22,11 @@ def process_esl_data():
     # Convert both lists to DataFrames
     df_cumulative = pd.DataFrame(cumulative_data)
     df_monthly = pd.DataFrame(monthly_data)
-
+    #exporting esl data
+    df_cumulative.to_csv("esl_export/cumulative_data.csv", index=False)
+    df_cumulative.to_json("esl_export/cumulative_data.json", orient="records")
+    df_monthly.to_csv("esl_export/monthly_data.csv", index=False)
+    df_monthly.to_json("esl_export/monthly_data.json", orient="records")
     # Convert 'TimePeriod' to datetime for easier resampling
     df_cumulative['TimePeriod'] = pd.to_datetime(df_cumulative['TimePeriod'], format='%Y-%m')
     df_monthly['TimePeriod'] = pd.to_datetime(df_monthly['TimePeriod'], format='%Y-%m')
@@ -175,7 +179,7 @@ def main():
             # Do some computation here
             time.sleep(30)  # Simulating a delay
             print_usage()
-            continue
+
 
     else:
         st.warning('Keine Daten zum Visualisieren')
