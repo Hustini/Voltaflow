@@ -38,6 +38,14 @@ def daily_data():
     df_cumulative = pd.DataFrame(sequences_cumulative, columns=['Label', 'Date', 'Cumulative'])
     df_daily = pd.DataFrame(sequences_daily, columns=['Label', 'Date', 'Daily'])
 
+    # Convert 'Date' columns to datetime format
+    df_cumulative['Date'] = pd.to_datetime(df_cumulative['Date'])
+    df_daily['Date'] = pd.to_datetime(df_daily['Date'])
+
+    # Sort the DataFrames by 'Date'
+    df_cumulative.sort_values(by='Date', inplace=True)
+    df_daily.sort_values(by='Date', inplace=True)
+
     # Display cumulative data
     st.subheader("Cumulative Data")
     st.write(df_cumulative)
