@@ -27,8 +27,6 @@ def sdat_data(directory='SDAT-Files'):
             label = 'Einspeisung'
         elif 'ID742' in document_id:
             label = 'Bezug'
-        else:
-            label = 'Unknown'
 
         # Extract report period start and end times
         start_datetime_str = root.find('.//rsm:StartDateTime', namespace).text
