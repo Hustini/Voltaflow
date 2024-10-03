@@ -7,13 +7,11 @@ from ESLData import esl_data
 from SDATData import sdat_data
 
 # for Streamlit Theming
-st.set_page_config(layout="wide")
-CURRENT_THEME = "light"
+st.set_page_config(layout='wide')
+CURRENT_THEME = 'light'
 
 
 def export_to_csv(data, filename, directory):
-    """Export data to a CSV file, replacing 'Bezug' with 'ID742' in the output."""
-    # Create the directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
 
     # Combine directory and filename to create a full path
@@ -21,11 +19,8 @@ def export_to_csv(data, filename, directory):
 
     with open(file_path, mode='w', newline='') as file:
         writer = csv.writer(file)
-        # Write header
         writer.writerow(['Sensor_ID', 'DateTime', 'Value'])
-        # Write data
         for entry in data:
-            # Replace 'Bezug' with 'ID742' in the label for the CSV output
             label = entry[0]
             if label == 'Bezug':
                 label = 'ID742'
@@ -52,11 +47,11 @@ def daily_data():
     df_daily.sort_values(by='Datum', inplace=True)
 
     # Display cumulative data
-    st.subheader("Tabelle der Daten (Kumulativ)")
+    st.subheader('Tabelle der Daten (Kumulativ)')
     st.write(df_cumulative)
 
     # Plotting Cumulative Data as Line Chart
-    st.subheader("Datenvisualisierung (Kumulativ)")
+    st.subheader('Datenvisualisierung (Kumulativ)')
     fig_cumulative = px.line(df_cumulative,
                              x='Datum',
                              y='Wert',
@@ -64,16 +59,16 @@ def daily_data():
                              title='Daten (Kumulative)',
                              labels={'Cumulative': 'Cumulative Value'},
                              markers=True,
-                             color_discrete_sequence=["#ff0000", "#00ff00"])  # Adding markers for clarity
+                             color_discrete_sequence=['#ff0000', '#00ff00'])
     fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
     # Display daily data
-    st.subheader("Tabelle der Daten")
+    st.subheader('Tabelle der Daten')
     st.write(df_daily)
 
     # Plotting Daily Data
-    st.subheader("Datenvisualisierung")
+    st.subheader('Datenvisualisierung')
     fig_daily = px.bar(df_daily,
                        x='Datum',
                        y='Wert',
@@ -81,7 +76,7 @@ def daily_data():
                        title='Daten',
                        labels={'Daily': 'Daily Value'},
                        text='Wert',
-                       color_discrete_sequence=["#ff0000", "#00ff00"])
+                       color_discrete_sequence=['#ff0000', '#00ff00'])
     fig_daily.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_daily.update_layout(xaxis_title='Datum', yaxis_title='Wert', barmode='stack')
     st.plotly_chart(fig_daily)
@@ -97,27 +92,27 @@ def monthly_data():
     df_monthly = pd.DataFrame(data_month)
 
     # Display cumulative data
-    st.subheader("Tabelle der monatlichen Daten (Kumulativ)")
+    st.subheader('Tabelle der monatlichen Daten (Kumulativ)')
     st.write(df_cumulative)
 
     # Plotting Cumulative Data as Line Chart
-    st.subheader("Monatliche Datenvisualisierung")
+    st.subheader('Monatliche Datenvisualisierung')
     fig_cumulative = px.line(df_cumulative,
                              x='TimePeriod',
                              y=['Bezug', 'Einspeisung'],
                              title='Monatliche Datenvisualisierung (Kumulative)',
                              labels={'value': 'Cumulative Value'},
                              markers=True,
-                             color_discrete_sequence=["#ff0000", "#00ff00"])  # Adding markers for clarity
+                             color_discrete_sequence=['#ff0000', '#00ff00'])  # Adding markers for clarity
     fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
     # Display monthly data
-    st.subheader("Monatliche Daten")
+    st.subheader('Monatliche Daten')
     st.write(df_monthly)
 
     # Plotting Monthly Data
-    st.subheader("Monatliche Datenvisualisierung")
+    st.subheader('Monatliche Datenvisualisierung')
     fig_monthly = px.bar(df_monthly,
                          x='TimePeriod',
                          y=['Bezug', 'Einspeisung'],
@@ -125,7 +120,7 @@ def monthly_data():
                          labels={'value': 'Monthly Value'},
                          text='value',
                          barmode='group',
-                         color_discrete_sequence=["#ff0000", "#00ff00"])  # Change to group
+                         color_discrete_sequence=['#ff0000', '#00ff00'])
     fig_monthly.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_monthly.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_monthly)
@@ -160,11 +155,11 @@ def yearly_data():
     yearly_last_month['Kumulative Einspeisung'] = yearly_last_month['Einspeisung'].cumsum()
 
     # Debug: Display the yearly data for confirmation
-    st.subheader("Tabelle der Jährlichen Daten (Kumulativ)")
+    st.subheader('Tabelle der Jährlichen Daten (Kumulativ)')
     st.write(yearly_last_month)
 
     # --- First Chart: Plot Yearly Last Month Data as Line Chart ---
-    st.subheader("Jährliche Datenvisualisierung (Kumulativ)")
+    st.subheader('Jährliche Datenvisualisierung (Kumulativ)')
     fig_yearly = px.line(
         yearly_last_month,
         x='Year',
@@ -172,7 +167,7 @@ def yearly_data():
         title='Jährliche Datenvisualisierung',
         labels={'value': 'Yearly Value'},
         markers=True, # Add markers for each data point for better clarity
-        color_discrete_sequence=["#ff0000", "#00ff00"]
+        color_discrete_sequence=['#ff0000', '#00ff00']
     )
     fig_yearly.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_yearly)
@@ -183,19 +178,19 @@ def yearly_data():
     yearly_last_month['Einspeisung Differenz'] = yearly_last_month['Einspeisung'].diff().fillna(yearly_last_month['Einspeisung'])
 
     # Display the Year-over-Year Differences
-    st.subheader("Tabelle der Jährlichen Daten")
+    st.subheader('Tabelle der Jährlichen Daten')
     st.write(yearly_last_month[['Year', 'Bezug', 'Einspeisung']])
 
     # --- Second Chart: Bar Chart for Year-over-Year Differences ---
-    st.subheader("Jährliche Datenvisualisierung")
+    st.subheader('Jährliche Datenvisualisierung')
     fig_difference = px.bar(
         yearly_last_month,
         x='Year',
         y=['Bezug Differenz', 'Einspeisung Differenz'],
-        barmode='group',  # Grouped bar chart to compare values side-by-side
+        barmode='group',
         title='Jährliche Daten',
         labels={'value': 'Differenz'},
-        color_discrete_sequence=["#ff0000", "#00ff00"]
+        color_discrete_sequence=['#ff0000', '#00ff00']
     )
     fig_difference.update_layout(xaxis_title='Jahr', yaxis_title='Wert')
     st.plotly_chart(fig_difference)
@@ -219,8 +214,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # Call the function to execute
     cumulative_data, daily_data = sdat_data()
-    # Export both cumulative and daily data to CSV files
     export_to_csv(cumulative_data, 'cumulative_data.csv', 'Exports')
     export_to_csv(daily_data, 'daily_data.csv', 'Exports')
