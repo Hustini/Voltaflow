@@ -90,35 +90,35 @@ def monthly_data():
     df_monthly = pd.DataFrame(data_month)
 
     # Display cumulative data
-    st.subheader("Cumulative Data")
+    st.subheader("Tabelle der monatlichen Daten (Kumulative)")
     st.write(df_cumulative)
 
     # Plotting Cumulative Data as Line Chart
-    st.subheader("Cumulative Data Visualization")
+    st.subheader("Monatliche Datenvisualisierung")
     fig_cumulative = px.line(df_cumulative,
                              x='TimePeriod',
                              y=['Bezug', 'Einspeisung'],
-                             title='Cumulative Data Over Time',
+                             title='Monatliche Datenvisualisierung (Kumulative)',
                              labels={'value': 'Cumulative Value'},
                              markers=True)  # Adding markers for clarity
-    fig_cumulative.update_layout(xaxis_title='Time Period', yaxis_title='Cumulative Value')
+    fig_cumulative.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_cumulative)
 
     # Display monthly data
-    st.subheader("Monthly Data")
+    st.subheader("Monatliche Daten")
     st.write(df_monthly)
 
     # Plotting Monthly Data
-    st.subheader("Monthly Data Visualization")
+    st.subheader("Monatliche Datenvisualisierung")
     fig_monthly = px.bar(df_monthly,
                          x='TimePeriod',
                          y=['Bezug', 'Einspeisung'],
-                         title='Monthly Data Over Time',
+                         title='Monatliche Datenvisualisierung',
                          labels={'value': 'Monthly Value'},
                          text='value',
                          barmode='group')  # Change to group
     fig_monthly.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-    fig_monthly.update_layout(xaxis_title='Time Period', yaxis_title='Monthly Value')
+    fig_monthly.update_layout(xaxis_title='Datum', yaxis_title='Wert')
     st.plotly_chart(fig_monthly)
 
 
