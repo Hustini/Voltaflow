@@ -49,17 +49,16 @@ def daily_data():
     st.subheader("Daily Data")
     st.write(df_daily)
 
-    # Plotting Cumulative Data
+    # Plotting Cumulative Data as Line Chart
     st.subheader("Cumulative Data Visualization")
-    fig_cumulative = px.bar(df_cumulative,
-                            x='Date',
-                            y='Cumulative',
-                            color='Label',
-                            title='Cumulative Data Over Time',
-                            labels={'Cumulative': 'Cumulative Value'},
-                            text='Cumulative')
-    fig_cumulative.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-    fig_cumulative.update_layout(xaxis_title='Date', yaxis_title='Cumulative Value', barmode='stack')
+    fig_cumulative = px.line(df_cumulative,
+                             x='Date',
+                             y='Cumulative',
+                             color='Label',
+                             title='Cumulative Data Over Time',
+                             labels={'Cumulative': 'Cumulative Value'},
+                             markers=True)  # Adding markers for clarity
+    fig_cumulative.update_layout(xaxis_title='Date', yaxis_title='Cumulative Value')
     st.plotly_chart(fig_cumulative)
 
     # Plotting Daily Data
@@ -181,48 +180,41 @@ def yearly_data():
 def main():
     st.title('Voltaflow Energie Visualizer')
 
-    # Parse data
-    df_cumulative, df_monthly = process_esl_data()
+    # User selection for time granularity
+    time_granularity = st.selectbox('Wählen Sie eine Zeitspanne aus', ('Monatlich', 'Jährlich', 'Täglich'))
 
-    if not df_cumulative.empty and not df_monthly.empty:
-        # User selection for time granularity
-        time_granularity = st.selectbox('Wählen Sie eine Zeitspanne aus', ('Monatlich', 'Jährlich', 'Täglich'))
+    # Resample data based on user selection (yearly or monthly)
+    if time_granularity == 'Jährlich':
+        yearly_data()
+    if time_granularity == 'Monatlich':
+        monthly_data()
+    if time_granularity == 'Täglich':
+        daily_data()
 
-        # Resample data based on user selection (yearly or monthly)
-        if time_granularity == 'Jährlich':
-            yearly_data()
-        if time_granularity == 'Monatlich':
-            monthly_data()
-        if time_granularity == 'Täglich':
-            daily_data()
+    # Builtin Healthcheck features
+    # Get the current process ID
+    pid = os.getpid()
 
-        # Builtin Healthcheck features
-        # Get the current process ID
-        pid = os.getpid()
+    # Use psutil to access process information
+    process = psutil.Process(pid)
 
-        # Use psutil to access process information
-        process = psutil.Process(pid)
+    # Function to get RAM and CPU usage
+    def print_usage():
+        # Get the memory usage in MB
+        memory_usage = process.memory_info().rss / (1024 * 1024)
+        # Get the CPU usage in percentage
+        cpu_usage = process.cpu_percent(interval=1)
 
-        # Function to get RAM and CPU usage
-        def print_usage():
-            # Get the memory usage in MB
-            memory_usage = process.memory_info().rss / (1024 * 1024)
-            # Get the CPU usage in percentage
-            cpu_usage = process.cpu_percent(interval=1)
+        print(f"Memory Usage: {memory_usage:.2f} MB")
+        print(f"CPU Usage: {cpu_usage:.2f}%")
 
-            print(f"Memory Usage: {memory_usage:.2f} MB")
-            print(f"CPU Usage: {cpu_usage:.2f}%")
-
-        # Simulating a long-running task
-        while True:
-            # Do some computation here
-            time.sleep(30)  # Simulating a delay
-            print_usage()
-
-
-    else:
-        st.warning('Keine Daten zum Visualisieren')
+    # Simulating a long-running task
+    while True:
+        # Do some computation here
+        time.sleep(30)  # Simulating a delay
+        print_usage()
 
 
 if __name__ == '__main__':
     main()
+    process_esl_data()
